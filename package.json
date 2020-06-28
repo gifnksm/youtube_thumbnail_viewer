@@ -1,0 +1,17 @@
+{
+  "name": "youtube_thumbnail_viewer",
+  "version": "0.1.0",
+  "description": "Adds a YouTube thumbnail preview icon to the address bar.",
+  "main": "index.js",
+  "scripts": {
+    "start:firefox": "web-ext run",
+    "build": "web-ext build --overwrite-dest",
+    "lint": "eslint . && web-ext lint"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^7.3.1",
+    "web-ext": "^4.3.0"
+  }
+}

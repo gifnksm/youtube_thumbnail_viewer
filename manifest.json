@@ -1,0 +1,20 @@
+{
+    "manifest_version": 2,
+    "name": "YouTube Thumbnail Viewer",
+    "version": "0.1.0",
+    "description": "Adds a YouTube thumbnail preview button to the address bar.",
+    "permissions": [
+        "activeTab"
+    ],
+    "page_action": {
+        "browser_style": true,
+        "default_icon": {
+            "24": "icons/page_action.svg"
+        },
+        "default_title": "YThumb",
+        "default_popup": "./popup/index.html",
+        "show_matches": [
+            "https://www.youtube.com/watch*"
+        ]
+    }
+}
