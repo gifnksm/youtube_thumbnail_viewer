@@ -15,7 +15,7 @@
         "default_title": "YThumb",
         "default_popup": "./popup/index.html",
         "show_matches": [
-            "https://www.youtube.com/watch*"
+            "https://*.youtube.com/watch*"
         ]
     }
 }
