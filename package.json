@@ -12,7 +12,7 @@
   "author": "gifnksm",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^7.18.0",
+    "eslint": "^7.20.0",
     "web-ext": "^5.5.0"
   }
 }
