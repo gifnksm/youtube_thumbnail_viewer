@@ -7,12 +7,15 @@
   "scripts": {
     "start:firefox": "web-ext run",
     "build": "web-ext build --overwrite-dest",
-    "lint": "eslint . && web-ext lint"
+    "lint": "eslint . && web-ext lint",
+    "format": "prettier --write ."
   },
   "author": "gifnksm",
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.8.0",
+    "eslint-config-prettier": "^8.3.0",
+    "prettier": "^2.5.1",
     "web-ext": "^6.6.0"
   }
 }
