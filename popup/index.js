@@ -19,10 +19,10 @@ const getVideoId = tab => {
     return id;
 };
 
-const loadImage = async (src) => new Promise((resolve, reject) => {
+const loadImage = async (src) => new Promise((resolve, _reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = (e) => reject(e);
+    img.onerror = (_e) => resolve(null);
     img.src = src;
 });
 
@@ -34,7 +34,7 @@ const main = async () => {
         let src = `https://img.youtube.com/vi/${id}/${filename}.jpg`;
         thumbnail.alt = src;
         let img = await loadImage(src);
-        if (img.width != expected_width) {
+        if (img?.width != expected_width) {
             continue;
         }
         thumbnail.src = img.src;
