@@ -4,14 +4,22 @@
   "version": "0.2.0",
   "description": "Adds a YouTube thumbnail preview button to the address bar.",
   "homepage_url": "https://github.com/gifnksm/youtube_thumbnail_viewer",
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "tabs"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.youtube.com/*"],
+      "js": ["content.js"]
+    }
+  ],
   "page_action": {
     "browser_style": true,
     "default_icon": {
       "24": "icons/page_action.svg"
     },
-    "default_title": "YThumb",
-    "default_popup": "./popup/index.html",
-    "show_matches": ["https://*.youtube.com/watch*"]
+    "default_title": "YouTube Thumbnail Viewer",
+    "default_popup": "./popup/index.html"
   }
 }
