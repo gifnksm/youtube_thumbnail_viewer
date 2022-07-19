@@ -13,9 +13,9 @@
   "author": "gifnksm",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^8.8.0",
-    "eslint-config-prettier": "^8.3.0",
-    "prettier": "^2.5.1",
-    "web-ext": "^6.6.0"
+    "eslint": "^8.20.0",
+    "eslint-config-prettier": "^8.5.0",
+    "prettier": "^2.7.1",
+    "web-ext": "^7.1.1"
   }
 }
