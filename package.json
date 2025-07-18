@@ -14,7 +14,7 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^9.23.0",
-    "eslint-config-prettier": "^10.1.1",
+    "eslint-config-prettier": "^10.1.7",
     "prettier": "^3.5.3",
     "web-ext": "^8.5.0"
   }
