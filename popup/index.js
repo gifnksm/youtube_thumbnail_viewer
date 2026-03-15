@@ -2,6 +2,12 @@
 
 const thumbnail = document.getElementById("thumbnail");
 
+thumbnail.style.visibility = "hidden"; // Hide until loaded
+
+thumbnail.onload = () => {
+  thumbnail.style.visibility = "visible"; // Show only when the image data is ready
+};
+
 const getVariants = (videoId, isShorts) => {
   const base = `https://img.youtube.com/vi/${videoId}/`;
   return isShorts 
