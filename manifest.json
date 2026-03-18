@@ -1,19 +1,13 @@
 {
   "manifest_version": 2,
   "name": "YouTube Thumbnail Viewer",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Adds a YouTube thumbnail preview button to the address bar.",
   "homepage_url": "https://github.com/gifnksm/youtube_thumbnail_viewer",
-  "permissions": ["activeTab", "tabs"],
+  "permissions": ["tabs", "*://*.youtube.com/*"],
   "background": {
     "scripts": ["background.js"]
   },
-  "content_scripts": [
-    {
-      "matches": ["https://*.youtube.com/*"],
-      "js": ["content.js"]
-    }
-  ],
   "page_action": {
     "browser_style": true,
     "default_icon": {
