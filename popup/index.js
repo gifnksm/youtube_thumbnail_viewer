@@ -44,3 +44,11 @@ const updateThumbnailUI = async () => {
 };
 
 updateThumbnailUI();
+
+// Listen for tab updates while the popup is active
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.url) {
+    // Re-run your main logic when the URL changes
+    updateThumbnailUI();
+  }
+});
