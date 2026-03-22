@@ -138,16 +138,22 @@ const updateThumbnailUI = async () => {
   }
 };
 
-const main = () => {
+const main = async () => {
   initThumbnail();
+  const currentWindow = await browser.windows.getCurrent();
+  const currentWindowId = currentWindow?.id;
+
   updateThumbnailUI();
 
-  // Listen for tab updates while the popup is active
+  // Listen for tab updates in the current window while the popup is active.
+  const filter = currentWindowId
+    ? { windowId: currentWindowId, properties: ["url"] }
+    : { properties: ["url"] };
   browser.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
     if (changeInfo.url && tab?.active) {
       updateThumbnailUI();
     }
-  });
+  }, filter);
 };
 
 main();
