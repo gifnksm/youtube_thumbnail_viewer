@@ -12,8 +12,8 @@ module.exports = [
         document: "readonly",
         window: "readonly",
         URL: "readonly",
-        console: "readonly"
-      }
+        console: "readonly",
+      },
     },
     rules: {
       "no-unused-vars": [
@@ -21,10 +21,10 @@ module.exports = [
         {
           varsIgnorePattern: "^_",
           argsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_"
-        }
-      ]
-    }
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
   },
-  prettierConfig
+  prettierConfig,
 ];
