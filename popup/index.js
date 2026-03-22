@@ -10,7 +10,7 @@ thumbnail.onload = () => {
 
 const getVariants = (videoId, isShorts) => {
   const base = `https://img.youtube.com/vi/${videoId}/`;
-  return isShorts 
+  return isShorts
     ? [`${base}oardefault.jpg`, `${base}hq720.jpg`]
     : [`${base}maxresdefault.jpg`, `${base}hqdefault.jpg`];
 };
@@ -18,13 +18,14 @@ const getVariants = (videoId, isShorts) => {
 const updateThumbnailUI = async () => {
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   const url = new URL(tab.url);
-  
+
   // Extract ID
-  const videoId = url.searchParams.get("v") || url.pathname.split('/shorts/')[1];
+  const videoId =
+    url.searchParams.get("v") || url.pathname.split("/shorts/")[1];
   if (!videoId) return;
 
-  const isShorts = tab.url.includes('/shorts/');
-  
+  const isShorts = tab.url.includes("/shorts/");
+
   // Define the hierarchy of thumbnails to try
   const variants = getVariants(videoId, isShorts);
 
@@ -38,7 +39,7 @@ const updateThumbnailUI = async () => {
       thumbnail.src = variants[index];
     }
   };
-  
+
   // Start the chain
   thumbnail.src = variants[0];
 };
@@ -46,7 +47,7 @@ const updateThumbnailUI = async () => {
 updateThumbnailUI();
 
 // Listen for tab updates while the popup is active
-browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+browser.tabs.onUpdated.addListener((tabId, changeInfo, _tab) => {
   if (changeInfo.url) {
     // Re-run your main logic when the URL changes
     updateThumbnailUI();
