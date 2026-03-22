@@ -8,6 +8,14 @@
   "background": {
     "scripts": ["background.js"]
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "youtube-thumbnail-viewer@gifnksm",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
   "page_action": {
     "browser_style": true,
     "default_icon": {

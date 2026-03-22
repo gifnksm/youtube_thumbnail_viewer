@@ -1,6 +1,8 @@
-const isYoutube = (url) => url && url.includes("youtube.com/watch") || url.includes("youtube.com/shorts");
+const isYoutube = (url) =>
+  (url && url.includes("youtube.com/watch")) ||
+  url.includes("youtube.com/shorts");
 
-browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+browser.tabs.onUpdated.addListener((tabId, changeInfo, _tab) => {
   if (isYoutube(changeInfo.url)) {
     browser.pageAction.show(tabId);
   } else {
