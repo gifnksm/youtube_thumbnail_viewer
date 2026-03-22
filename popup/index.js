@@ -2,10 +2,21 @@
 
 const thumbnail = document.getElementById("thumbnail");
 
+let currentRequestId = 0;
+let expectedSrc = null;
+
+const clearThumbnail = () => {
+  expectedSrc = null;
+  thumbnail.src = "";
+  thumbnail.style.visibility = "hidden";
+};
+
 thumbnail.style.visibility = "hidden";
 
 thumbnail.onload = () => {
-  thumbnail.style.visibility = "visible";
+  if (thumbnail.src && thumbnail.src === expectedSrc) {
+    thumbnail.style.visibility = "visible";
+  }
 };
 
 const loadImage = (src) =>
@@ -64,6 +75,9 @@ const getVariantCandidates = (videoId, isShorts) => {
 };
 
 const updateThumbnailUI = async () => {
+  const requestId = ++currentRequestId;
+  clearThumbnail();
+
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   if (!tab?.url) return;
 
@@ -83,10 +97,15 @@ const updateThumbnailUI = async () => {
       continue;
     }
 
+    if (requestId !== currentRequestId) {
+      return;
+    }
+
     if (!img || img.width < variant.minWidth) {
       continue;
     }
 
+    expectedSrc = img.src;
     thumbnail.src = img.src;
     return;
   }
@@ -97,8 +116,8 @@ const updateThumbnailUI = async () => {
 updateThumbnailUI();
 
 // Listen for tab updates while the popup is active
-browser.tabs.onUpdated.addListener((_tabId, changeInfo) => {
-  if (changeInfo.url) {
+browser.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
+  if (changeInfo.url && tab?.active) {
     updateThumbnailUI();
   }
 });
