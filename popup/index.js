@@ -5,18 +5,33 @@ const thumbnail = document.getElementById("thumbnail");
 let currentRequestId = 0;
 let expectedSrc = null;
 
+const initThumbnail = () => {
+  thumbnail.style.visibility = "hidden";
+  thumbnail.onload = () => {
+    if (thumbnail.src && thumbnail.src === expectedSrc) {
+      thumbnail.style.visibility = "visible";
+    }
+  };
+};
+
 const clearThumbnail = () => {
   expectedSrc = null;
-  thumbnail.src = "";
+  // Remove src to avoid accidental requests to the document URL.
+  thumbnail.removeAttribute("src");
   thumbnail.style.visibility = "hidden";
 };
 
-thumbnail.style.visibility = "hidden";
+const resetThumbnailForRequest = () => {
+  clearThumbnail();
+};
 
-thumbnail.onload = () => {
-  if (thumbnail.src && thumbnail.src === expectedSrc) {
-    thumbnail.style.visibility = "visible";
-  }
+const hideThumbnailOnFailure = () => {
+  clearThumbnail();
+};
+
+const applyThumbnail = (src) => {
+  expectedSrc = src;
+  thumbnail.src = src;
 };
 
 const loadImage = (src) =>
@@ -76,7 +91,8 @@ const getVariantCandidates = (videoId, isShorts) => {
 
 const updateThumbnailUI = async () => {
   const requestId = ++currentRequestId;
-  clearThumbnail();
+  // Reset UI for this request; guards below ensure only the latest updates the DOM.
+  resetThumbnailForRequest();
 
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   if (!tab?.url) return;
@@ -89,7 +105,13 @@ const updateThumbnailUI = async () => {
   // Try larger candidates first; the first one passing minWidth becomes the thumbnail.
   // This matches the intent to show the largest real thumbnail available while skipping
   // placeholder responses for missing variants or non-existent videos.
+  let foundImg = null;
   for (const variant of variants) {
+    // Abort if a newer update started to avoid stale work and extra requests.
+    if (requestId !== currentRequestId) {
+      return;
+    }
+
     let img = null;
     try {
       img = await loadImage(variant.src);
@@ -97,27 +119,35 @@ const updateThumbnailUI = async () => {
       continue;
     }
 
-    if (requestId !== currentRequestId) {
-      return;
-    }
-
     if (!img || img.width < variant.minWidth) {
       continue;
     }
 
-    expectedSrc = img.src;
-    thumbnail.src = img.src;
+    foundImg = img;
+    break;
+  }
+
+  if (requestId !== currentRequestId) {
     return;
   }
 
-  thumbnail.style.visibility = "hidden";
+  if (foundImg) {
+    applyThumbnail(foundImg.src);
+  } else {
+    hideThumbnailOnFailure();
+  }
 };
 
-updateThumbnailUI();
+const main = () => {
+  initThumbnail();
+  updateThumbnailUI();
 
-// Listen for tab updates while the popup is active
-browser.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
-  if (changeInfo.url && tab?.active) {
-    updateThumbnailUI();
-  }
-});
+  // Listen for tab updates while the popup is active
+  browser.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
+    if (changeInfo.url && tab?.active) {
+      updateThumbnailUI();
+    }
+  });
+};
+
+main();
