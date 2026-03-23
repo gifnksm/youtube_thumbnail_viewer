@@ -129,7 +129,7 @@ const updatePreviewImageUI = async (url) => {
     let img = await loadValidVariantImage(variant);
     // Abort if a newer update started to avoid stale work and extra requests.
     if (requestId !== currentRequestId) {
-      return null;
+      return;
     }
     if (img) {
       bestImg = img;
