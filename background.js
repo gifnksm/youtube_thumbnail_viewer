@@ -1,8 +1,20 @@
 const isYoutube = (url) => {
   if (!url) return false;
-  return (
-    url.includes("youtube.com/watch") || url.includes("youtube.com/shorts")
-  );
+
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch (_e) {
+    return false;
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (hostname !== "youtube.com" && !hostname.endsWith(".youtube.com")) {
+    return false;
+  }
+
+  const pathname = parsed.pathname;
+  return pathname.startsWith("/watch") || pathname.startsWith("/shorts");
 };
 
 browser.tabs.onUpdated.addListener(

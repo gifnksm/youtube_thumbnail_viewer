@@ -114,12 +114,12 @@ const updatePreviewImageUI = async (url) => {
   // Reset UI for this request; guards below ensure only the latest updates the DOM.
   resetPreviewImageForRequest();
 
+  const requestId = ++currentRequestId;
+
   if (!url) return;
   const { videoId, isShorts } = parseVideoId(url);
   if (!videoId) return;
   const variants = getVariantCandidates(videoId, isShorts);
-
-  const requestId = ++currentRequestId;
 
   // Try larger candidates first; the first one passing minWidth becomes the thumbnail.
   // This matches the intent to show the largest real thumbnail available while skipping
@@ -162,7 +162,7 @@ const main = async () => {
     : { properties: ["url"] };
   browser.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
     if (changeInfo.url && tab?.active) {
-      updatePreviewImageUI(tab?.url);
+      updatePreviewImageUI(changeInfo.url);
     }
   }, filter);
 };
