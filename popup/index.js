@@ -2,10 +2,9 @@
 
 const thumbnail = document.getElementById("thumbnail");
 
-let currentRequestId = 0;
 let expectedSrc = null;
 
-const initThumbnail = () => {
+const initPreviewImageUI = () => {
   thumbnail.style.visibility = "hidden";
   thumbnail.onload = () => {
     if (thumbnail.src && thumbnail.src === expectedSrc) {
@@ -14,22 +13,22 @@ const initThumbnail = () => {
   };
 };
 
-const clearThumbnail = () => {
+const clearPreviewImageUI = () => {
   expectedSrc = null;
   // Remove src to avoid accidental requests to the document URL.
   thumbnail.removeAttribute("src");
   thumbnail.style.visibility = "hidden";
 };
 
-const resetThumbnailForRequest = () => {
-  clearThumbnail();
+const resetPreviewImageForRequest = () => {
+  clearPreviewImageUI();
 };
 
-const hideThumbnailOnFailure = () => {
-  clearThumbnail();
+const hidePreviewImageOnFailure = () => {
+  clearPreviewImageUI();
 };
 
-const applyThumbnail = (src) => {
+const applyPreviewImage = (src) => {
   expectedSrc = src;
   thumbnail.src = src;
 };
@@ -43,7 +42,15 @@ const loadImage = (src) =>
   });
 
 const parseVideoId = (urlString) => {
-  const url = new URL(urlString);
+  if (!urlString) return { videoId: null, isShorts: false };
+
+  let url;
+  try {
+    url = new URL(urlString);
+  } catch (_e) {
+    return { videoId: null, isShorts: false };
+  }
+
   const vParam = url.searchParams.get("v");
   if (vParam) return { videoId: vParam, isShorts: false };
 
@@ -89,61 +96,65 @@ const getVariantCandidates = (videoId, isShorts) => {
   }));
 };
 
-const updateThumbnailUI = async () => {
-  const requestId = ++currentRequestId;
+const loadValidVariantImage = async (variant) => {
+  let img = null;
+  try {
+    img = await loadImage(variant.src);
+  } catch (_e) {
+    return null;
+  }
+  if (!img || img.width < variant.minWidth) {
+    return null;
+  }
+  return img;
+};
+
+let currentRequestId = 0;
+const updatePreviewImageUI = async (url) => {
   // Reset UI for this request; guards below ensure only the latest updates the DOM.
-  resetThumbnailForRequest();
+  resetPreviewImageForRequest();
 
-  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
-  if (!tab?.url) return;
-
-  const { videoId, isShorts } = parseVideoId(tab.url);
+  if (!url) return;
+  const { videoId, isShorts } = parseVideoId(url);
   if (!videoId) return;
-
   const variants = getVariantCandidates(videoId, isShorts);
+
+  const requestId = ++currentRequestId;
 
   // Try larger candidates first; the first one passing minWidth becomes the thumbnail.
   // This matches the intent to show the largest real thumbnail available while skipping
   // placeholder responses for missing variants or non-existent videos.
-  let foundImg = null;
+  let bestImg = null;
   for (const variant of variants) {
+    let img = await loadValidVariantImage(variant);
     // Abort if a newer update started to avoid stale work and extra requests.
     if (requestId !== currentRequestId) {
-      return;
+      return null;
     }
-
-    let img = null;
-    try {
-      img = await loadImage(variant.src);
-    } catch (_e) {
-      continue;
+    if (img) {
+      bestImg = img;
+      break;
     }
-
-    if (!img || img.width < variant.minWidth) {
-      continue;
-    }
-
-    foundImg = img;
-    break;
   }
 
-  if (requestId !== currentRequestId) {
-    return;
-  }
-
-  if (foundImg) {
-    applyThumbnail(foundImg.src);
+  if (bestImg) {
+    applyPreviewImage(bestImg.src);
   } else {
-    hideThumbnailOnFailure();
+    hidePreviewImageOnFailure();
   }
 };
 
 const main = async () => {
-  initThumbnail();
-  const currentWindow = await browser.windows.getCurrent();
-  const currentWindowId = currentWindow?.id;
+  initPreviewImageUI();
 
-  updateThumbnailUI();
+  const [currentTab] = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+  if (!currentTab) return;
+  const currentWindowId = currentTab.windowId;
+
+  updatePreviewImageUI(currentTab?.url);
 
   // Listen for tab updates in the current window while the popup is active.
   const filter = currentWindowId
@@ -151,7 +162,7 @@ const main = async () => {
     : { properties: ["url"] };
   browser.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
     if (changeInfo.url && tab?.active) {
-      updateThumbnailUI();
+      updatePreviewImageUI(tab?.url);
     }
   }, filter);
 };
