@@ -54,9 +54,12 @@ const parseVideoId = (urlString) => {
   const vParam = url.searchParams.get("v");
   if (vParam) return { videoId: vParam, isShorts: false };
 
-  const path = url.pathname;
-  const shortsMatch = path.match(/^\/shorts\/([^/?#]+)/);
+  const pathname = url.pathname;
+  const shortsMatch = pathname.match(/^\/shorts\/([^/]+)/);
   if (shortsMatch) return { videoId: shortsMatch[1], isShorts: true };
+
+  const liveMatch = pathname.match(/^\/live\/([^/]+)/);
+  if (liveMatch) return { videoId: liveMatch[1], isShorts: false };
 
   return { videoId: null, isShorts: false };
 };
