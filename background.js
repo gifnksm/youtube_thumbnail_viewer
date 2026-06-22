@@ -1,20 +1,24 @@
-const isYoutube = (url) => {
-  if (!url) return false;
+const isYoutube = (urlStr) => {
+  if (!urlStr) return false;
 
-  let parsed;
+  let url;
   try {
-    parsed = new URL(url);
+    url = new URL(urlStr);
   } catch (_e) {
     return false;
   }
 
-  const hostname = parsed.hostname.toLowerCase();
+  const hostname = url.hostname.toLowerCase();
   if (hostname !== "youtube.com" && !hostname.endsWith(".youtube.com")) {
     return false;
   }
 
-  const pathname = parsed.pathname;
-  return pathname.startsWith("/watch") || pathname.startsWith("/shorts");
+  const pathname = url.pathname;
+  return (
+    (pathname.startsWith("/watch") && !!url.searchParams.get("v")) ||
+    /^\/shorts\/[^/]+/.test(pathname) ||
+    /^\/live\/[^/]+/.test(pathname)
+  );
 };
 
 browser.tabs.onUpdated.addListener(
